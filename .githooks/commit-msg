@@ -1,0 +1,38 @@
+#!/bin/sh
+set -eu
+
+fail() {
+    printf 'commit-msg: %s\n' "$*" >&2
+    exit 1
+}
+
+message_file=${1:-}
+[ -f "$message_file" ] || fail 'commit message file is missing'
+
+awk '
+    /^[[:space:]]*#/ { next }
+    { lines[++count] = $0 }
+    END {
+        subject = lines[1]
+        if (length(subject) > 100) {
+            print "commit-msg: subject must be 100 characters or fewer" > "/dev/stderr"
+            exit 1
+        }
+        if (subject !~ /^(feat|fix|docs|test|refactor|perf|build|ci|chore|revert)\([a-z][a-z0-9_-]*\)!?: [a-z][a-z0-9-]* .+$/ || subject ~ /[.[:space:]]$/) {
+            print "commit-msg: use <type>(<scope>): <verb> <object>, without a final period" > "/dev/stderr"
+            print "Example: fix(installer): restore previous installation on failure" > "/dev/stderr"
+            exit 1
+        }
+        if (lines[2] != "") {
+            print "commit-msg: separate subject and body with a blank line" > "/dev/stderr"
+            exit 1
+        }
+        for (i = 3; i <= count; i++) {
+            if (lines[i] ~ /[^[:space:]]/) body = 1
+        }
+        if (!body) {
+            print "commit-msg: add a body explaining why the change is needed and its effect" > "/dev/stderr"
+            exit 1
+        }
+    }
+' "$message_file"
