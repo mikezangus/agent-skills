@@ -20,20 +20,16 @@ npx skills add mikezangus/agent-skills --global
 Install script:
 
 ```sh
-bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/mikezangus/agent-skills/master/install.sh | bash -s -- "$@"' --
+curl -fsSL https://raw.githubusercontent.com/mikezangus/agent-skills/master/install.sh | bash
 ```
 
-Arguments after the final `--`:
+For optional arguments, replace `bash` with:
 
 ```text
-[--target-directory DIRECTORY] [SKILL ...]
+bash -s -- [--target-directory DIRECTORY] [SKILL ...]
 
 --target-directory DIRECTORY  Install directory (default: ~/.agents/skills)
 SKILL                         Skill to install (default: all skills)
 ```
 
 Existing installations of selected skills are replaced.
-
-## License
-
-[MIT](LICENSE).
